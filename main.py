@@ -52,11 +52,7 @@ def upload_file(request: Request):
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_file(file, content_type="application/xml")
 
-    # Make the file publicly accessible (Optional)
-    blob.make_public()
-
     return jsonify({
         "message": "File uploaded successfully",
-        "file_url": blob.public_url,
         "gcs_path": f"gs://{BUCKET_NAME}/{destination_blob_name}"
     }), 200
