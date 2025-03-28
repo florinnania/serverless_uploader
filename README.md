@@ -22,19 +22,9 @@ Before deploying or running this project, ensure you have:
 Use curl to test the Cloud Run endpoint:
 
 ```sh
-curl -X POST YOUR_CLOUD_RUN_URL/upload \
-  -F "file=@path/to/your/file.xml" \
-  -F 'metadata={
-      "coverageType": "cov",
-      "project": "CSW Installer",
-      "product": "TBD",
-      "buildId": "22.24.8",
-      "branchName": "release",
-      "coverageType": "unit test",
-      "operatingSystem": "10",
-      "architecture": "Windows",
-      "coverageProvider": "Bullseye"
-  }'
+curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" -X POST YOUR_CLOUD_RUN_URL \
+  -F "file=@features--backup_cobertura.xml" \
+  -F "metadata={\"coverageType\": \"cov\", \"project\": \"CSW Installer\", \"product\": \"TBD\", \"buildId\": \"22.24.8\", \"branchName\": \"release\", \"coverageType\": \"unit test\", \"operatingSystem\": \"10\", \"architecture\": \"Windows\", \"coverageProvider\": \"Bullseye\"}"
 ```
   
 Expected Response
