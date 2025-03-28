@@ -1,9 +1,7 @@
-import os
 import json
-from flask import Flask, request, jsonify
+import os
+from flask import Request, jsonify
 from google.cloud import storage
-
-app = Flask(__name__)
 
 # GCS Config
 BUCKET_NAME = "unmerged-coverage"
@@ -11,13 +9,21 @@ BUCKET_NAME = "unmerged-coverage"
 # Initialize GCS Client
 storage_client = storage.Client()
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
+# Define the function using the functions_framework decorator
+import functions_framework
+
+@functions_framework.http
+def upload_file(request: Request):
+    """Handles file uploads with metadata and stores them in GCS"""
+    
+    if request.method != "POST":
+        return jsonify({"error": "Only POST method is allowed"}), 405
+    
+    if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
     
-    file = request.files['file']
-    metadata = request.form.get('metadata')
+    file = request.files["file"]
+    metadata = request.form.get("metadata")
 
     if not file or not metadata:
         return jsonify({"error": "Missing file or metadata"}), 400
@@ -54,6 +60,3 @@ def upload_file():
         "file_url": blob.public_url,
         "gcs_path": f"gs://{BUCKET_NAME}/{destination_blob_name}"
     }), 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
